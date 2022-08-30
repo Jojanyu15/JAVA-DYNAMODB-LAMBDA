@@ -9,26 +9,22 @@ import java.io.IOException;
 public class S3WebPageSender {
 
     private static final S3BucketWebpageProvider s3BucketProviderService = new S3BucketWebpageProvider();
-    private static ProductWebPageBuilder webPageBuilder;
 
-    public S3WebPageSender() throws IOException {
-        loadWebPage();
-    }
+    private S3WebPageSender(){}
 
-
-    public static void createItem(Product newItem)  {
-        String webPage = webPageBuilder.parseProductInsideWebPage(HTMLProductCardGenerator.generateHTMLCard(newItem));
+    public static void createItem(Product newItem) throws IOException {
+        String webPage = loadWebPageBuilder().parseProductInsideWebPage(HTMLProductCardGenerator.generateHTMLCard(newItem));
         s3BucketProviderService.uploadHTMLWebPage(webPage);
     }
 
-    public static void updateItem(Product oldItem, Product newItem)  {
-        String webPage =  webPageBuilder.updateProductInsideWebPage(
+    public static void updateItem(Product oldItem, Product newItem) throws IOException {
+        String webPage =  loadWebPageBuilder().updateProductInsideWebPage(
                         String.valueOf(oldItem.getId()),
                         HTMLProductCardGenerator.generateHTMLCard(newItem));
         s3BucketProviderService.uploadHTMLWebPage(webPage);
     }
 
-    private void loadWebPage() throws IOException {
-        this.webPageBuilder= new ProductWebPageBuilder(S3BucketWebpageProvider.getHTMLStringWebPage());
+    private static ProductWebPageBuilder loadWebPageBuilder() throws IOException {
+        return new ProductWebPageBuilder(S3BucketWebpageProvider.getHTMLStringWebPage());
     }
 }

@@ -18,6 +18,7 @@ public class Handler {
     public void handleRequest(DynamodbEvent event, Context context) {
         DynamodbEventTransformer.toRecordsV1(event).forEach(dynamoRecord -> {
             try {
+                System.out.println(event);
                 processRecord(dynamoRecord);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -28,9 +29,9 @@ public class Handler {
     private void processRecord(Record eventRecord) throws IOException {
         RecordMapperService<Product> dynamoEventMapper = new DynamoRecordMapperService<>(eventRecord, Product.class);
         if (eventRecord.getEventName().equals(EVENT_MODIFY)) {
-            S3WebPageSender.createItem(dynamoEventMapper.getNewImage());
-        } else if (eventRecord.getEventName().equals(EVENT_INSERT)) {
             S3WebPageSender.updateItem(dynamoEventMapper.getOldImage(),dynamoEventMapper.getNewImage());
+        } else if (eventRecord.getEventName().equals(EVENT_INSERT)) {
+            S3WebPageSender.createItem(dynamoEventMapper.getNewImage());
         }
     }
 }
